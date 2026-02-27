@@ -49,6 +49,26 @@
         .icon-3d-container { will-change: transform; }
         @media (max-width: 767px) {
             .mobile-3d-icon { will-change: transform; }
+
+            /* Mobile Layout Density Optimizations */
+            html {
+                scroll-padding-top: 80px;
+            }
+            section {
+                padding-top: 2.5rem !important;
+                padding-bottom: 2.5rem !important;
+            }
+            section:first-of-type {
+                min-height: 85vh !important;
+                padding-top: 5rem !important;
+            }
+            #travel img {
+                height: 16rem !important;
+                object-fit: cover;
+            }
+            #travel .pb-12 {
+                padding-bottom: 2rem !important;
+            }
         }
 
         /* Custom Animations */
@@ -588,64 +608,11 @@
             </div>
         </section>
 
-        <!-- Field Essay Section -->
-        <section id="essay" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
-            <div class="max-w-3xl mx-auto px-4 md:px-0">
-                <div class="mb-10 md:mb-16 text-center">
-                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">07 / Field Essay</span>
-                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#111111]">Why Micro-Interactions Matter</h2>
-                </div>
-                
-                <div class="space-y-4 md:space-y-5 text-base md:text-lg text-gray-500 font-light leading-relaxed text-center">
-                    <p>
-                        Most people don't notice micro-interactions.
-                    </p>
-                    <p>
-                        That's the point.
-                    </p>
-                    <p>
-                        A button that responds instantly.<br>
-                        A subtle hover shift.<br>
-                        A 200ms easing curve that feels natural.
-                    </p>
-                    <p>
-                        These things are small. But they change how something feels.
-                    </p>
-                    <p>
-                        Micro-interactions are where trust is built.<br>
-                        They signal care. They signal intention.
-                    </p>
-                    <p>
-                        When an interface reacts smoothly, it feels reliable.<br>
-                        When it hesitates or behaves unpredictably, doubt creeps in.
-                    </p>
-                    <p>
-                        Users may not consciously analyze these details.<br>
-                        But they feel them.
-                    </p>
-                    <p>
-                        Good micro-interactions reduce cognitive friction.<br>
-                        They guide attention.<br>
-                        They make complexity feel manageable.
-                    </p>
-                    <p>
-                        In the end, great software isn't loud.
-                    </p>
-                    <p>
-                        It feels considered.
-                    </p>
-                    <p class="text-[#111111] font-medium pt-2">
-                        And micro-interactions are often the quietest proof of that consideration.
-                    </p>
-                </div>
-            </div>
-        </section>
-
         <!-- Contact Section -->
         <section id="contact" class="py-16 md:py-32 pb-20 md:pb-32 pt-16 md:pt-24 reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
             <div class="max-w-3xl mx-auto neumorphic-outset rounded-[2rem] md:rounded-[40px] p-6 md:p-16 bg-[#F8F9FA] relative overflow-hidden spotlight-card">
                 <div class="text-center mb-8 md:mb-12 relative z-10">
-                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">08 / Connect</span>
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">06 / Connect</span>
                     <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-3 md:mb-4 text-[#111111]">Let's build together.</h2>
                     <p class="text-sm md:text-base text-gray-500">Reach out for collaborations or just to say hello.</p>
                 </div>
@@ -827,12 +794,20 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('opacity-100', 'translate-y-0');
+                    if (window.innerWidth < 768) entry.target.classList.add('scale-100');
+                    
                     entry.target.classList.remove('opacity-0', 'translate-y-12');
+                    if (window.innerWidth < 768) entry.target.classList.remove('scale-95');
+                    
                     observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-        document.querySelectorAll('.reveal-section').forEach(el => observer.observe(el));
+        
+        document.querySelectorAll('.reveal-section').forEach(el => {
+            if (window.innerWidth < 768) el.classList.add('scale-95');
+            observer.observe(el);
+        });
 
         // 7. Navbar Scroll State
         const navbar = document.getElementById('navbar');
@@ -849,12 +824,18 @@
         // 8. Magnetic Buttons Logic
         document.querySelectorAll('.magnetic-btn').forEach(btn => {
             btn.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
-                const y = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
-                btn.style.transform = `translate(${x}px, ${y}px)`;
+                if (window.innerWidth >= 768) {
+                    const rect = btn.getBoundingClientRect();
+                    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
+                    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
+                    btn.style.transform = `translate(${x}px, ${y}px)`;
+                }
             });
-            btn.addEventListener('mouseleave', () => btn.style.transform = `translate(0px, 0px)`);
+            btn.addEventListener('mouseleave', () => {
+                if (window.innerWidth >= 768) {
+                    btn.style.transform = `translate(0px, 0px)`;
+                }
+            });
         });
 
         // 9. Smooth Scroll Links
@@ -941,14 +922,14 @@
                     
                     // Always animate background shapes (Hero section)
                     cachedShapes.forEach((shape, i) => {
-                        shape.style.transform = `translateY(${scrolled * (i + 1) * 0.08 * (i % 2 === 0 ? 1 : -1)}px)`;
+                        shape.style.transform = `translateY(${scrolled * (i + 1) * 0.04 * (i % 2 === 0 ? 1 : -1)}px)`;
                     });
 
                     // Only animate 3D icons if the section is currently visible
                     if (isSkillsVisible) {
                         cachedIcons.forEach((icon, i) => {
                             const baseZ = parseFloat(icon.dataset.baseZ || 0);
-                            icon.style.transform = `rotateX(60deg) rotateZ(${baseZ + (scrolled * 0.15 * (i % 2 === 0 ? 1 : -1))}deg) scale(1.1)`;
+                            icon.style.transform = `rotateX(60deg) rotateZ(${baseZ + (scrolled * 0.08 * (i % 2 === 0 ? 1 : -1))}deg) scale(1.1)`;
                         });
                     }
 
