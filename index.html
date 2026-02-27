@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faraz Jawed - Portfolio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        html { scroll-behavior: smooth; cursor: auto; }
+        /* Hide native cursor on desktop when custom cursor is active */
+        @media (min-width: 768px) { html { cursor: none; } a, button, input, textarea { cursor: none; } }
+        
+        body { background-color: #F8F9FA; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        
+        ::selection { background-color: #E8E0D5; color: #111111; }
+        
+        /* Subtle Architectural Noise Overlay */
+        .bg-noise {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9998; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .neumorphic-inset { box-shadow: inset 4px 4px 8px rgba(0,0,0,0.05), inset -4px -4px 8px rgba(255,255,255,1); }
+        .neumorphic-outset { box-shadow: 8px 8px 16px rgba(0,0,0,0.04), -8px -8px 16px rgba(255,255,255,1); }
+        .depth-shadow { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.07); }
+        
+        /* 3D Layer Styling */
+        .z-layer { transform: translateZ(var(--z-depth)); will-change: transform; }
+        .group:hover .z-layer { transform: translateZ(var(--z-hover)); }
+        .shadow-layer { transform: translateZ(var(--z-depth)) translateX(4px) translateY(4px); will-change: transform; }
+        .group:hover .shadow-layer { transform: translateZ(var(--z-hover)) translateX(16px) translateY(16px); }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Hardware Acceleration Optimizations */
+        .icon-3d-container { will-change: transform; }
+        @media (max-width: 767px) {
+            .mobile-3d-icon { will-change: transform; }
+        }
+
+        /* Custom Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .anim-slide-up { opacity: 0; animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .anim-slide-up-delay-1 { opacity: 0; animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; }
+        .anim-fade-in-delay-2 { opacity: 0; animation: fadeIn 1.5s ease-out 0.4s forwards; }
+        .anim-fade-in-delay-3 { opacity: 0; animation: fadeIn 1.5s ease-out 0.6s forwards; }
+
+        /* Custom Cursor */
+        #cursor-dot, #cursor-ring {
+            position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%); will-change: transform, width, height, background-color;
+        }
+        #cursor-dot { width: 6px; height: 6px; background-color: #111; transition: opacity 0.2s; }
+        #cursor-ring { 
+            width: 32px; height: 32px; border: 1px solid rgba(17,17,17,0.2); 
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s, border-color 0.3s;
+        }
+        .cursor-hover #cursor-ring { width: 64px; height: 64px; background-color: rgba(17,17,17,0.05); border-color: transparent; }
+        .cursor-hover #cursor-dot { opacity: 0; }
+        
+        /* Spotlight Effect (Signature Interaction) */
+        .spotlight-card { position: relative; overflow: hidden; }
+        .spotlight-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(17,17,17,0.03), transparent 40%);
+            opacity: 0; transition: opacity 0.5s; pointer-events: none;
+        }
+        .spotlight-card:hover::before { opacity: 1; }
+    </style>
+</head>
+<body class="min-h-screen text-[#111111] overflow-x-hidden">
+
+    <!-- Subtle Noise Overlay -->
+    <div class="bg-noise"></div>
+
+    <!-- Intro Loading Screen -->
+    <div id="loader" class="fixed inset-0 z-[10000] bg-[#F8F9FA] flex flex-col items-center justify-center transition-all duration-700 ease-in-out">
+        <div class="overflow-hidden">
+            <h1 class="font-bold text-3xl tracking-tight text-[#111111] animate-[slideUp_0.8s_cubic-bezier(0.16,1,0.3,1)_forwards]">FARAZ.</h1>
+        </div>
+        <div class="w-12 h-[2px] bg-gray-200 mt-4 overflow-hidden rounded-full relative">
+            <div class="absolute top-0 left-0 h-full bg-[#111111] animate-[slideRight_1s_ease-in-out_forwards]" style="animation: loadProgress 1s ease-in-out forwards;"></div>
+        </div>
+        <style>@keyframes loadProgress { 0% { width: 0%; } 100% { width: 100%; } }</style>
+    </div>
+
+    <!-- Scroll Progress Bar -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[#111111] to-gray-500 z-[9999] w-0 transition-all duration-150 ease-out origin-left"></div>
+
+    <!-- Custom Cursor (Desktop Only) -->
+    <div class="hidden md:block">
+        <div id="cursor-dot"></div>
+        <div id="cursor-ring"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 bg-transparent">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <div class="font-bold text-xl tracking-tight cursor-pointer hover-trigger" data-scroll-to="top">
+                FARAZ<span class="text-gray-400">.</span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-gray-600">
+                <button data-scroll-to="about" class="hover:text-[#111111] transition-colors relative group hover-trigger">
+                    About
+                    <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#111111] transition-all duration-300 group-hover:w-full"></span>
+                </button>
+                <button data-scroll-to="skills" class="hover:text-[#111111] transition-colors relative group hover-trigger">
+                    Skills
+                    <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#111111] transition-all duration-300 group-hover:w-full"></span>
+                </button>
+                <button data-scroll-to="projects" class="hover:text-[#111111] transition-colors relative group hover-trigger">
+                    Work
+                    <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#111111] transition-all duration-300 group-hover:w-full"></span>
+                </button>
+                <button data-scroll-to="philosophy" class="hover:text-[#111111] transition-colors relative group hover-trigger">
+                    Explorations
+                    <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#111111] transition-all duration-300 group-hover:w-full"></span>
+                </button>
+                <button data-scroll-to="contact" class="hover:text-[#111111] transition-colors relative group hover-trigger">
+                    Contact
+                    <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#111111] transition-all duration-300 group-hover:w-full"></span>
+                </button>
+            </div>
+            <button id="open-mobile-menu" class="md:hidden text-sm font-medium hover-trigger z-50">Menu</button>
+        </div>
+    </nav>
+
+    <!-- NEW: Full-Screen Mobile Navigation Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-[#F8F9FA]/95 backdrop-blur-xl z-[100000] flex flex-col justify-center items-center transition-all duration-500 opacity-0 pointer-events-none translate-y-4 md:hidden">
+        <button id="close-mobile-menu" class="absolute top-6 right-6 p-2 text-[#111111] hover-trigger">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <div class="flex flex-col gap-8 text-center text-3xl font-medium tracking-tight text-[#111111]">
+            <button data-menu-link="about" class="hover:text-gray-500 transition-colors">About</button>
+            <button data-menu-link="skills" class="hover:text-gray-500 transition-colors">Skills</button>
+            <button data-menu-link="projects" class="hover:text-gray-500 transition-colors">Work</button>
+            <button data-menu-link="philosophy" class="hover:text-gray-500 transition-colors">Explorations</button>
+            <button data-menu-link="contact" class="hover:text-gray-500 transition-colors">Contact</button>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-6 pt-12">
+        
+        <!-- Hero Section -->
+        <section class="min-h-[70vh] md:min-h-screen flex flex-col md:flex-row items-center justify-center md:justify-between pt-24 sm:pt-32 md:pt-20 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out overflow-hidden md:overflow-visible">
+            
+            <!-- Subtle Background Abstract Symbols & Shapes -->
+            <div class="absolute top-0 h-full w-[100vw] left-1/2 -translate-x-1/2 z-0 pointer-events-none overflow-hidden">
+                <div class="absolute top-[10%] -left-[10%] md:-left-[20%] w-[300px] h-[300px] rounded-full bg-gradient-to-tr from-[#E8E0D5]/40 to-transparent blur-[60px] md:hidden"></div>
+                <div class="absolute bottom-[20%] -right-[10%] md:-right-[20%] w-[250px] h-[250px] rounded-full bg-gradient-to-bl from-[#D0E3F0]/40 to-transparent blur-[60px] md:hidden"></div>
+                <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#111 1.5px, transparent 1.5px); background-size: 32px 32px;"></div>
+                
+                <!-- Floating Geometric Symbols -->
+                <div class="absolute top-[20%] left-[10%] md:left-[2%] opacity-10 animate-[bounce_8s_infinite] mobile-bg-shape">
+                    <i data-lucide="triangle" class="w-8 h-8 md:w-12 md:h-12 text-gray-500 -rotate-12"></i>
+                </div>
+                <div class="absolute top-[40%] right-[10%] md:right-[45%] opacity-[0.15] mobile-bg-shape">
+                    <div class="w-20 h-20 md:w-32 md:h-32 border border-gray-400 rounded-full border-dashed animate-[spin_20s_linear_infinite]"></div>
+                </div>
+                <div class="absolute bottom-[20%] left-[15%] md:left-[10%] opacity-20 mobile-bg-shape">
+                    <i data-lucide="plus" class="w-6 h-6 md:w-8 md:h-8 text-gray-500 rotate-45"></i>
+                </div>
+            </div>
+
+            <!-- Left Content -->
+            <div class="w-full md:w-[55%] z-10 flex flex-col items-center md:items-start text-center md:text-left px-2 md:px-0">
+                
+                <!-- Status Badge (Restored and scaled for mobile) -->
+                <div class="anim-slide-up mb-5 md:mb-6 inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full glass-panel border border-gray-200/50 shadow-sm">
+                    <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-[0.65rem] md:text-xs font-semibold tracking-wide uppercase text-gray-600">Student Developer</span>
+                </div>
+
+                <div class="overflow-hidden mb-3 md:mb-6">
+                    <span class="block font-serif italic text-gray-400 text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-4 tracking-wide anim-slide-up">
+                        hey there,
+                    </span>
+                    <!-- Optimized text scaling for very small devices (360px) -->
+                    <h1 class="text-[2.75rem] leading-[1.1] min-[380px]:text-6xl sm:text-7xl md:text-8xl font-bold tracking-tighter md:leading-[1.05] anim-slide-up-delay-1 text-[#111111]">
+                        I'm Faraz<br/>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#111111] to-gray-400">
+                            Jawed.
+                        </span>
+                    </h1>
+                </div>
+                
+                <p class="text-base min-[380px]:text-lg sm:text-xl md:text-2xl text-gray-500 font-light mb-6 md:mb-12 max-w-md mx-auto md:mx-0 leading-relaxed anim-fade-in-delay-2">
+                    Designing with <span class="text-[#111111]">depth</span>. <br class="hidden md:block"/>
+                    Building with <span class="text-[#111111]">intention</span>.
+                </p>
+                
+                <div class="w-full flex justify-center md:justify-start anim-fade-in-delay-3 pb-8 md:pb-0">
+                    <button data-scroll-to="projects" class="magnetic-btn hover-trigger px-8 py-3.5 md:px-8 md:py-4 text-base bg-[#111111] text-white rounded-full font-medium tracking-wide shadow-[0_10px_20px_rgba(0,0,0,0.08)] md:shadow-[0_15px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:bg-[#222] group relative flex items-center justify-center gap-2 transition-transform duration-300 ease-out">
+                        View Work
+                        <i data-lucide="arrow-right" class="w-4 h-4 md:w-5 md:h-5 ml-1 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right 3D Abstract Composition (Desktop) -->
+            <div class="hidden md:flex w-[45%] h-[600px] relative items-center justify-center z-10">
+                <div class="absolute inset-0 flex items-center justify-center transform scale-100 origin-center" style="perspective: 1200px;">
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-[#E8E0D5]/40 to-[#D0E3F0]/40 rounded-full blur-[80px] opacity-70 pointer-events-none"></div>
+
+                    <!-- 3D Scene Wrapper -->
+                    <div id="hero-scene" class="relative w-full h-full flex items-center justify-center pointer-events-auto transition-transform duration-200 ease-out" style="transform-style: preserve-3d; will-change: transform;">
+                        
+                        <div class="absolute w-72 h-72 border-2 border-gray-300/30 rounded-full" style="transform: translateZ(-200px);"></div>
+
+                        <div class="absolute w-80 h-[460px] glass-panel rounded-[2rem] depth-shadow border-2 border-white/50 overflow-hidden" style="transform: translateZ(0px); box-shadow: 0 30px 60px -15px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.5);">
+                            <div id="hero-glass-glare" class="absolute inset-0 w-full h-full pointer-events-none transition-all duration-200 ease-out" style="background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.6) 0%, transparent 60%);"></div>
+                        </div>
+
+                        <div id="hero-card-small" class="absolute transition-transform duration-200 ease-out hover-trigger" style="transform: translateZ(100px) translateX(-70px) translateY(100px) rotateZ(-10deg); will-change: transform;">
+                            <div class="w-40 h-40 bg-white/40 backdrop-blur-xl rounded-2xl border border-white/80 shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-center transition-transform duration-500 hover:scale-105 cursor-pointer">
+                                <div class="w-16 h-1 bg-white/80 rounded-full shadow-sm"></div>
+                            </div>
+                        </div>
+
+                        <div id="hero-sphere" class="absolute transition-transform duration-200 ease-out hover-trigger" style="transform: translateZ(160px) translateX(90px) translateY(-120px); will-change: transform;">
+                            <div class="w-32 h-32 bg-gradient-to-br from-white to-[#E8E0D5] rounded-full shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.05),15px_15px_30px_rgba(0,0,0,0.08)] transition-transform duration-500 hover:scale-110 cursor-pointer"></div>
+                        </div>
+
+                        <div class="absolute w-56 h-56 border-[16px] border-[#111111]/5 rounded-full pointer-events-none" style="transform: translateZ(50px) rotateX(15deg);"></div>
+
+                        <div id="hero-dark-obj" class="absolute transition-transform duration-200 ease-out hover-trigger" style="transform: translateZ(250px) translateX(120px) translateY(40px); will-change: transform;">
+                            <div class="w-20 h-20 bg-[#111111] rounded-2xl shadow-2xl flex items-center justify-center border border-gray-700 transition-transform duration-500 hover:scale-110 cursor-pointer">
+                                <div class="w-6 h-6 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="text-center mb-10 md:mb-16">
+                <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">01 / Foundation</span>
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-[#111111]">The Mind</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
+                <!-- Card 1 -->
+                <div class="spotlight-card hover-trigger bg-white rounded-[2rem] p-8 md:p-10 depth-shadow border-t border-l border-white/80 border-r border-b border-gray-100/50 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.12)] group overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#E8E0D5] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="w-14 h-14 rounded-2xl bg-[#F8F9FA] flex items-center justify-center mb-8 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.7),_2px_2px_6px_rgba(0,0,0,0.04)] border border-gray-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 origin-bottom-left relative z-10">
+                        <div class="w-5 h-5 bg-[#111111] rounded-full shadow-md"></div>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4 relative z-10">The Student</h3>
+                    <p class="text-gray-500 leading-relaxed text-sm md:text-base relative z-10">
+                        Approaching every challenge with a beginner's mindset. Continuously expanding mental models through relentless curiosity and unlearning outdated paradigms.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="spotlight-card hover-trigger bg-white rounded-[2rem] p-10 depth-shadow border-t border-l border-white/80 border-r border-b border-gray-100/50 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.12)] group overflow-hidden md:translate-y-6">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D0E3F0] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="w-14 h-14 rounded-2xl bg-[#F8F9FA] flex items-center justify-center mb-8 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.7),_2px_2px_6px_rgba(0,0,0,0.04)] border border-gray-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 origin-bottom-left relative z-10">
+                        <div class="w-5 h-5 border-[3px] border-[#111111] rounded-md shadow-sm"></div>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4 relative z-10">The Developer</h3>
+                    <p class="text-gray-500 leading-relaxed text-sm md:text-base relative z-10">
+                        Building scalable logic and structured architectures. Translating abstract ideas and complex problems into tangible, interactive, and resilient digital realities.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="spotlight-card hover-trigger bg-white rounded-[2rem] p-10 depth-shadow border-t border-l border-white/80 border-r border-b border-gray-100/50 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.12)] group overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="w-14 h-14 rounded-2xl bg-[#F8F9FA] flex items-center justify-center mb-8 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.7),_2px_2px_6px_rgba(0,0,0,0.04)] border border-gray-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 origin-bottom-left relative z-10">
+                        <div class="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[16px] border-b-[#111111] drop-shadow-md"></div>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4 relative z-10">The Traveler</h3>
+                    <p class="text-gray-500 leading-relaxed text-sm md:text-base relative z-10">
+                        Seeking discomfort and diverse perspectives. Observing how different cultures organize space and solve human problems to fuel creative and lateral thinking.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Origin Section -->
+        <section id="origin" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-3xl mx-auto px-4 md:px-0">
+                <div class="text-center mb-10 md:mb-16">
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">02 / Origin</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#111111]">Why I Started</h2>
+                </div>
+                
+                <div class="space-y-6 md:space-y-8 text-lg md:text-xl text-gray-500 font-light leading-relaxed">
+                    <p>
+                        It began simply out of curiosity. The screen offered a blank medium, and code provided the syntax to navigate it. There was no grand epiphany—just the quiet satisfaction of a concept materializing through pure logic.
+                    </p>
+                    <p>
+                        I stayed because I recognized that designing software is a rigorous exercise in structured thinking. It demands that you strip away assumptions, distilling complex problems into their absolute, undeniable truths.
+                    </p>
+                    <p>
+                        Over time, building actual products broadened my perspective. I found that the underlying architecture of a system almost always reflects the human needs it serves. True engineering requires an understanding of people just as much as an understanding of machines.
+                    </p>
+                    <p class="text-[#111111] font-medium pt-2">
+                        Today, my approach is singular. I care about clarity, functionality, and intent. Everything else is just decoration.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section / Structured Thinking -->
+        <section id="skills" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
+               <div class="text-center mb-10 md:mb-16">
+                   <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">02 / Toolkit</span>
+                   <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#111111]">Structured Thinking</h2>
+               </div>
+               
+               <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8" style="perspective: 1000px;">
+                 <!-- Tiles -->
+                 <div class="hover-trigger group bg-[#F8F9FA] rounded-[1.25rem] md:rounded-[1.5rem] p-5 sm:p-6 lg:p-8 h-48 sm:h-56 md:h-64 flex flex-col shadow-[10px_10px_20px_rgba(0,0,0,0.03),-10px_-10px_20px_rgba(255,255,255,0.8)] border border-gray-100 transition-all duration-500 hover:-translate-y-3 hover:shadow-[15px_15px_30px_rgba(0,0,0,0.06),-15px_-15px_30px_rgba(255,255,255,1)] relative overflow-hidden">
+                    <div class="icon-3d-container w-full flex-1" data-icon="code" data-rotate-z="45"></div>
+                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 mt-5 md:mt-6 pt-4 border-t border-gray-200 w-full text-center group-hover:text-[#111111] transition-colors relative z-10">Programming</h3>
+                 </div>
+                 <div class="hover-trigger group bg-[#F8F9FA] rounded-[1.25rem] md:rounded-[1.5rem] p-5 sm:p-6 lg:p-8 h-48 sm:h-56 md:h-64 flex flex-col shadow-[10px_10px_20px_rgba(0,0,0,0.03),-10px_-10px_20px_rgba(255,255,255,0.8)] border border-gray-100 transition-all duration-500 hover:-translate-y-3 hover:shadow-[15px_15px_30px_rgba(0,0,0,0.06),-15px_-15px_30px_rgba(255,255,255,1)] md:translate-y-4 relative overflow-hidden">
+                    <div class="icon-3d-container w-full flex-1" data-icon="puzzle" data-rotate-z="-45"></div>
+                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 mt-5 md:mt-6 pt-4 border-t border-gray-200 w-full text-center group-hover:text-[#111111] transition-colors relative z-10">Logic</h3>
+                 </div>
+                 <div class="hover-trigger group bg-[#F8F9FA] rounded-[1.25rem] md:rounded-[1.5rem] p-5 sm:p-6 lg:p-8 h-48 sm:h-56 md:h-64 flex flex-col shadow-[10px_10px_20px_rgba(0,0,0,0.03),-10px_-10px_20px_rgba(255,255,255,0.8)] border border-gray-100 transition-all duration-500 hover:-translate-y-3 hover:shadow-[15px_15px_30px_rgba(0,0,0,0.06),-15px_-15px_30px_rgba(255,255,255,1)] md:translate-y-8 relative overflow-hidden">
+                    <div class="icon-3d-container w-full flex-1" data-icon="wrench" data-rotate-z="45"></div>
+                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 mt-5 md:mt-6 pt-4 border-t border-gray-200 w-full text-center group-hover:text-[#111111] transition-colors relative z-10">Systems</h3>
+                 </div>
+                 <div class="hover-trigger group bg-[#F8F9FA] rounded-[1.25rem] md:rounded-[1.5rem] p-5 sm:p-6 lg:p-8 h-48 sm:h-56 md:h-64 flex flex-col shadow-[10px_10px_20px_rgba(0,0,0,0.03),-10px_-10px_20px_rgba(255,255,255,0.8)] border border-gray-100 transition-all duration-500 hover:-translate-y-3 hover:shadow-[15px_15px_30px_rgba(0,0,0,0.06),-15px_-15px_30px_rgba(255,255,255,1)] md:translate-y-12 relative overflow-hidden">
+                    <div class="icon-3d-container w-full flex-1" data-icon="compass" data-rotate-z="-45"></div>
+                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-400 mt-5 md:mt-6 pt-4 border-t border-gray-200 w-full text-center group-hover:text-[#111111] transition-colors relative z-10">Design</h3>
+                 </div>
+               </div>
+            </div>
+         </section>
+
+        <!-- Projects Section (Upgraded) -->
+        <section id="projects" class="py-12 md:py-24 relative">
+            <div class="flex justify-between items-end mb-10 md:mb-16 max-w-6xl mx-auto reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+                <div>
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">03 / Work</span>
+                    <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-[#111111]">Applied Curiosity</h2>
+                </div>
+                <button class="hidden md:flex items-center gap-2 font-medium hover:text-gray-500 transition-colors hover-trigger">
+                    View Archive <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 max-w-6xl mx-auto" style="perspective: 1000px;">
+                <!-- Project 1: Nexaura -->
+                <div class="group reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+                    <div class="hover-trigger relative w-full aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.25)]">
+                        <img src="https://res.cloudinary.com/dpr3qarss/image/upload/v1772036186/a0tga6emt60dlnhwbzov.png" alt="Nexaura" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none"></div>
+                    </div>
+                    <div class="pr-4">
+                        <!-- Tech Stack Tags -->
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">E-Commerce</span>
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">React</span>
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">Tailwind</span>
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">Firebase</span>
+                        </div>
+                        <h3 class="text-3xl font-semibold mb-3 text-[#111111]">Nexaura</h3>
+                        <p class="text-gray-600 leading-relaxed text-base md:text-lg mb-6">
+                            A modern dropshipping platform for curated home decor. Designed with a clean UI and structured presentation to build user trust, featuring dynamic listings and a seamless, optimized checkout flow.
+                        </p>
+                        
+                        <!-- Structured Depth -->
+                        <div class="space-y-3 border-l-2 border-gray-200 pl-4 mb-8">
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">Problem:</strong> Creating trust and clarity in a dropshipping model.</p>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">My Role:</strong> Full design + frontend architecture.</p>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">What I Learned:</strong> Structured product hierarchy increases clarity and trust.</p>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">What I’d Improve:</strong> Advanced performance optimization and backend scalability.</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-4">
+                            <a href="https://nexaura.in.net" target="_blank" rel="noopener noreferrer" class="hover-trigger px-6 py-2.5 bg-[#111111] text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
+                                View Live <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </a>
+                            <button class="hover-trigger w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-[#111111] hover:bg-gray-50 transition-colors">
+                                <i data-lucide="github" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Expandable Thought Process -->
+                        <div class="mt-6 border-t border-gray-100 pt-5">
+                            <button class="toggle-process-btn hover-trigger text-sm font-semibold text-gray-400 hover:text-[#111111] transition-colors flex items-center group" data-target="process-1">
+                                <span class="btn-text">Read Thought Process</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 ml-1 transition-transform duration-300 group-[.is-open]:rotate-90"></i>
+                            </button>
+
+                            <div id="process-1" class="overflow-hidden transition-all duration-500 ease-in-out" style="max-height: 0px; opacity: 0; margin-top: 0px;">
+                                <div class="bg-[#F8F9FA] rounded-2xl p-5 md:p-6 border border-gray-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+                                    <div>
+                                        <h4 class="text-xs font-bold uppercase tracking-widest text-[#111111] mb-1">Initial Hypothesis</h4>
+                                        <p class="text-sm text-gray-500 leading-relaxed">A curated, distraction-free environment increases perceived product value and conversion rates compared to dense grid layouts.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold uppercase tracking-widest text-[#111111] mb-1">Architecture Decisions</h4>
+                                        <p class="text-sm text-gray-500 leading-relaxed">Selected React for component modularity and Firebase for real-time state synchronization, ensuring a lightweight client.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold uppercase tracking-widest text-[#111111] mb-1">Trade-offs Considered</h4>
+                                        <p class="text-sm text-gray-500 leading-relaxed">Sacrificed immediate initial load times for a richer, more interactive client-side rendering experience post-load.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2: Travel Blog -->
+                <div class="group md:mt-32 reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+                    <div class="hover-trigger relative w-full aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] transition-all duration-700 hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.2)]">
+                        <img src="https://res.cloudinary.com/dpr3qarss/image/upload/v1772036186/p2vdvkq191bdyhoxdw1c.png" alt="Travel Blog Website" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none"></div>
+                    </div>
+                    <div class="pr-4">
+                        <!-- Tech Stack Tags -->
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">HTML</span>
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">CSS</span>
+                            <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-600 shadow-sm">JavaScript</span>
+                        </div>
+                        <h3 class="text-3xl font-semibold mb-3 text-[#111111]">Travel Blog Website</h3>
+                        <p class="text-gray-600 leading-relaxed text-base md:text-lg mb-6">
+                            A curated travel blog presenting top global destinations through a visually engaging and structured format. It combines immersive storytelling with practical recommendations to inspire effortless exploration.
+                        </p>
+                        
+                        <!-- Structured Depth -->
+                        <div class="space-y-3 border-l-2 border-gray-200 pl-4 mb-8">
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">Problem:</strong> Organizing destinations without overwhelming users.</p>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">My Role:</strong> UI structure, layout logic, interaction design.</p>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">What I Learned:</strong> Simplicity improves exploration flow.</p>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed"><strong class="text-[#111111] font-semibold">What I’d Improve:</strong> Add CMS and dynamic filtering.</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-4">
+                            <a href="https://tourist-place.github.io/website/" target="_blank" rel="noopener noreferrer" class="hover-trigger px-6 py-2.5 bg-[#111111] text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
+                                View Live <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </a>
+                            <button class="hover-trigger w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-[#111111] hover:bg-gray-50 transition-colors">
+                                <i data-lucide="github" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Expandable Thought Process -->
+                        <div class="mt-6 border-t border-gray-100 pt-5">
+                            <button class="toggle-process-btn hover-trigger text-sm font-semibold text-gray-400 hover:text-[#111111] transition-colors flex items-center group" data-target="process-2">
+                                <span class="btn-text">Read Thought Process</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 ml-1 transition-transform duration-300 group-[.is-open]:rotate-90"></i>
+                            </button>
+
+                            <div id="process-2" class="overflow-hidden transition-all duration-500 ease-in-out" style="max-height: 0px; opacity: 0; margin-top: 0px;">
+                                <div class="bg-[#F8F9FA] rounded-2xl p-5 md:p-6 border border-gray-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+                                    <div>
+                                        <h4 class="text-xs font-bold uppercase tracking-widest text-[#111111] mb-1">Content Structure Logic</h4>
+                                        <p class="text-sm text-gray-500 leading-relaxed">Prioritized visual hierarchy by separating narrative storytelling from practical itineraries to reduce cognitive load.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold uppercase tracking-widest text-[#111111] mb-1">UX Simplification Strategy</h4>
+                                        <p class="text-sm text-gray-500 leading-relaxed">Removed deep nesting. All major regional guides are intuitively accessible within two clicks from the primary view.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold uppercase tracking-widest text-[#111111] mb-1">Future Iteration Ideas</h4>
+                                        <p class="text-sm text-gray-500 leading-relaxed">Implement a headless CMS to allow non-technical contributors to scale destination content without touching the codebase.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: Philosophy / Explorations Section -->
+        <section id="philosophy" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-8 md:p-16 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 relative overflow-hidden group spotlight-card">
+                <div class="relative z-10">
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-4 block">04 / Currently Exploring</span>
+                    <h2 class="text-3xl md:text-4xl font-serif italic text-[#111111] mb-8">
+                        "Great software feels less like a machine, and more like an extension of thought."
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-sm font-bold uppercase tracking-wider text-gray-900 mb-3 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> Systems Design</h4>
+                            <p class="text-gray-500 text-sm leading-relaxed">Diving deeper into macro-architecture. Understanding how disparate microservices communicate to form cohesive, resilient products.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold uppercase tracking-wider text-gray-900 mb-3 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="palette" class="w-4 h-4"></i> Micro-Interactions</h4>
+                            <p class="text-gray-500 text-sm leading-relaxed">Studying the psychology of motion. How a 200ms easing curve can completely change user trust and perceived application speed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Principles Section -->
+        <section id="principles" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-3xl mx-auto px-4 md:px-0">
+                <div class="text-center mb-10 md:mb-16">
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">05 / Principles</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-[#111111]">What I Believe</h2>
+                </div>
+                
+                <div class="max-w-lg mx-auto flex flex-col gap-3 md:gap-4">
+                    <div class="flex items-start gap-4">
+                        <span class="text-gray-300 font-bold text-lg md:text-xl">/</span>
+                        <p class="text-lg md:text-xl text-gray-600 font-medium tracking-tight">Clean design is a responsibility, not decoration.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-gray-300 font-bold text-lg md:text-xl">/</span>
+                        <p class="text-lg md:text-xl text-gray-600 font-medium tracking-tight">Speed is a form of respect.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-gray-300 font-bold text-lg md:text-xl">/</span>
+                        <p class="text-lg md:text-xl text-gray-600 font-medium tracking-tight">Complexity should feel invisible.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-gray-300 font-bold text-lg md:text-xl">/</span>
+                        <p class="text-lg md:text-xl text-gray-600 font-medium tracking-tight">Systems matter more than features.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-gray-300 font-bold text-lg md:text-xl">/</span>
+                        <p class="text-lg md:text-xl text-gray-600 font-medium tracking-tight">Clarity builds trust.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="text-gray-300 font-bold text-lg md:text-xl">/</span>
+                        <p class="text-lg md:text-xl text-gray-600 font-medium tracking-tight">Craft compounds over time.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Travel Section -->
+        <section id="travel" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-6">
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">05 / Perspectives</span>
+                    <h2 class="text-3xl md:text-4xl font-medium tracking-tight text-[#111111] px-4">
+                        Places that shaped how I think.
+                    </h2>
+                </div>
+                
+                <div class="flex gap-4 md:gap-8 overflow-x-auto pt-8 md:pt-10 pb-12 px-4 md:px-6 hide-scrollbar snap-x md:justify-center">
+                    <!-- Frame 1 -->
+                    <div class="travel-card hover-trigger group shrink-0 snap-center p-2.5 md:p-3 bg-white rounded-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] border border-gray-100 hover:translate-y-2 hover:rounded-t-[2.5rem] [&.is-active]:-translate-y-2 [&.is-active]:rounded-t-[2.5rem] transition-all duration-500">
+                        <div class="w-56 md:w-64 h-72 md:h-80 bg-gray-100 overflow-hidden relative rounded-sm group-hover:rounded-t-[2rem] group-[.is-active]:rounded-t-[2rem] transition-all duration-500">
+                            <img src="https://res.cloudinary.com/dpr3qarss/image/upload/v1772213616/rggevtuy1bgagfffyntd.png" alt="RIVER SILENCE" class="w-full h-full object-cover" style="filter: saturate(80%) contrast(95%) brightness(98%);">
+                        </div>
+                        <p class="mt-4 md:mt-5 mb-2 text-center text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">RIVER SILENCE</p>
+                    </div>
+
+                    <!-- Frame 2 -->
+                    <div class="travel-card hover-trigger group shrink-0 snap-center p-2.5 md:p-3 bg-white rounded-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] border border-gray-100 md:-translate-y-6 hover:translate-y-2 md:hover:-translate-y-4 hover:rounded-t-[2.5rem] [&.is-active]:-translate-y-2 [&.is-active]:rounded-t-[2.5rem] transition-all duration-500">
+                        <div class="w-56 md:w-64 h-72 md:h-80 bg-gray-100 overflow-hidden relative rounded-sm group-hover:rounded-t-[2rem] group-[.is-active]:rounded-t-[2rem] transition-all duration-500">
+                            <img src="https://res.cloudinary.com/dpr3qarss/image/upload/v1772213617/ottao16cy5a1fawjgmar.png" alt="GROUNDING" class="w-full h-full object-cover" style="filter: saturate(80%) contrast(95%) brightness(98%);">
+                        </div>
+                        <p class="mt-4 md:mt-5 mb-2 text-center text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">GROUNDING</p>
+                    </div>
+
+                    <!-- Frame 3 -->
+                    <div class="travel-card hover-trigger group shrink-0 snap-center p-2.5 md:p-3 bg-white rounded-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] border border-gray-100 hover:translate-y-2 hover:rounded-t-[2.5rem] [&.is-active]:-translate-y-2 [&.is-active]:rounded-t-[2.5rem] transition-all duration-500">
+                        <div class="w-56 md:w-64 h-72 md:h-80 bg-gray-100 overflow-hidden relative rounded-sm group-hover:rounded-t-[2rem] group-[.is-active]:rounded-t-[2rem] transition-all duration-500">
+                            <img src="https://res.cloudinary.com/dpr3qarss/image/upload/v1772213616/o8ycey5ooqae3rlndve1.png" alt="VALLEY LIGHT" class="w-full h-full object-cover" style="filter: saturate(80%) contrast(95%) brightness(98%);">
+                        </div>
+                        <p class="mt-4 md:mt-5 mb-2 text-center text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">VALLEY LIGHT</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Field Essay Section -->
+        <section id="essay" class="py-12 md:py-24 relative reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-3xl mx-auto px-4 md:px-0">
+                <div class="mb-10 md:mb-16 text-center">
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">07 / Field Essay</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#111111]">Why Micro-Interactions Matter</h2>
+                </div>
+                
+                <div class="space-y-4 md:space-y-5 text-base md:text-lg text-gray-500 font-light leading-relaxed text-center">
+                    <p>
+                        Most people don't notice micro-interactions.
+                    </p>
+                    <p>
+                        That's the point.
+                    </p>
+                    <p>
+                        A button that responds instantly.<br>
+                        A subtle hover shift.<br>
+                        A 200ms easing curve that feels natural.
+                    </p>
+                    <p>
+                        These things are small. But they change how something feels.
+                    </p>
+                    <p>
+                        Micro-interactions are where trust is built.<br>
+                        They signal care. They signal intention.
+                    </p>
+                    <p>
+                        When an interface reacts smoothly, it feels reliable.<br>
+                        When it hesitates or behaves unpredictably, doubt creeps in.
+                    </p>
+                    <p>
+                        Users may not consciously analyze these details.<br>
+                        But they feel them.
+                    </p>
+                    <p>
+                        Good micro-interactions reduce cognitive friction.<br>
+                        They guide attention.<br>
+                        They make complexity feel manageable.
+                    </p>
+                    <p>
+                        In the end, great software isn't loud.
+                    </p>
+                    <p>
+                        It feels considered.
+                    </p>
+                    <p class="text-[#111111] font-medium pt-2">
+                        And micro-interactions are often the quietest proof of that consideration.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-16 md:py-32 pb-20 md:pb-32 pt-16 md:pt-24 reveal-section opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+            <div class="max-w-3xl mx-auto neumorphic-outset rounded-[2rem] md:rounded-[40px] p-6 md:p-16 bg-[#F8F9FA] relative overflow-hidden spotlight-card">
+                <div class="text-center mb-8 md:mb-12 relative z-10">
+                    <span class="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2 block">08 / Connect</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-3 md:mb-4 text-[#111111]">Let's build together.</h2>
+                    <p class="text-sm md:text-base text-gray-500">Reach out for collaborations or just to say hello.</p>
+                </div>
+
+                <form class="space-y-4 md:space-y-6 relative z-10" onsubmit="event.preventDefault()">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs md:text-sm font-medium text-gray-500 pl-4">Name</label>
+                            <input type="text" placeholder="John Doe" class="w-full bg-[#F8F9FA] rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 neumorphic-inset text-[#111111] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#111111]/10 transition-shadow hover-trigger" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs md:text-sm font-medium text-gray-500 pl-4">Email</label>
+                            <input type="email" placeholder="john@example.com" class="w-full bg-[#F8F9FA] rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 neumorphic-inset text-[#111111] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#111111]/10 transition-shadow hover-trigger" />
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="text-xs md:text-sm font-medium text-gray-500 pl-4">Message</label>
+                        <textarea rows="4" placeholder="Tell me about your project..." class="w-full bg-[#F8F9FA] rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 neumorphic-inset text-[#111111] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#111111]/10 transition-shadow resize-none hover-trigger"></textarea>
+                    </div>
+
+                    <div class="pt-2 md:pt-4">
+                        <button type="submit" class="hover-trigger w-full py-3 md:py-4 rounded-xl md:rounded-2xl bg-[#F8F9FA] text-[#111111] font-semibold text-base md:text-lg neumorphic-outset active:neumorphic-inset transition-all hover:text-gray-600 flex items-center justify-center gap-2">
+                            <i data-lucide="mail" class="w-5 h-5"></i>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="font-bold text-lg tracking-tight">
+                FARAZ<span class="text-gray-400">.</span>
+            </div>
+            
+            <div class="flex gap-6">
+                <a href="#" class="magnetic-btn hover-trigger w-12 h-12 rounded-full bg-white depth-shadow flex items-center justify-center hover:shadow-lg transition-all text-[#111111]">
+                    <i data-lucide="github" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="magnetic-btn hover-trigger w-12 h-12 rounded-full bg-white depth-shadow flex items-center justify-center hover:shadow-lg transition-all text-[#111111]">
+                    <i data-lucide="linkedin" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="magnetic-btn hover-trigger w-12 h-12 rounded-full bg-white depth-shadow flex items-center justify-center hover:shadow-lg transition-all text-[#111111]">
+                    <i data-lucide="external-link" class="w-5 h-5"></i>
+                </a>
+            </div>
+
+            <p class="text-sm text-gray-500">
+                &copy; <span id="year"></span> Faraz Jawed. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        lucide.createIcons();
+
+        // 1. Intro Loader Logic
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 700);
+            }, 1200); // Elegant short delay
+        });
+
+        // 2. Custom Cursor Logic & Signature Spotlight Card effect
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        const spotlightCards = document.querySelectorAll('.spotlight-card');
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+
+        // Smooth cursor follow utilizing requestAnimationFrame for performance
+        const animateCursor = () => {
+            ringX += (mouseX - ringX) * 0.15; // easing
+            ringY += (mouseY - ringY) * 0.15;
+            
+            if(window.innerWidth >= 768) {
+                cursorDot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+                cursorRing.style.transform = `translate(calc(${ringX}px - 50%), calc(${ringY}px - 50%))`;
+            }
+            requestAnimationFrame(animateCursor);
+        };
+        requestAnimationFrame(animateCursor);
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // Signature Effect: Spotlight on cards
+            spotlightCards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        }, { passive: true });
+
+        // Add hover state to custom cursor
+        document.querySelectorAll('.hover-trigger, a, button, input, textarea').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+        });
+
+        // 3. Scroll Progress Indicator
+        const progressBar = document.getElementById('scroll-progress');
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + "%";
+        }, { passive: true });
+
+        // 4. Generate 3D Extruded Icons for "Structured Thinking"
+        const iconContainers = document.querySelectorAll('.icon-3d-container');
+        iconContainers.forEach(container => {
+            const iconName = container.getAttribute('data-icon');
+            const rotateZ = container.getAttribute('data-rotate-z');
+            const layerCount = window.innerWidth < 768 ? 6 : 12; // Mobile Optimization 1: Reduce layers
+            
+            let html = `
+            <div class="flex-1 flex items-center justify-center w-full" style="perspective: 1000px;">
+                <div class="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 transition-transform duration-700 md:group-hover:scale-110 mobile-3d-icon"
+                     style="transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(${rotateZ}deg);" data-base-z="${rotateZ}">
+                    <div class="absolute inset-0 transition-all duration-700 shadow-layer" style="--z-depth: -15px; --z-hover: -30px;">
+                        <i data-lucide="${iconName}" class="w-full h-full text-black/20 blur-md" stroke-width="3"></i>
+                    </div>
+            `;
+            for(let i=0; i<layerCount; i++) {
+                const zDepth = (i - (layerCount - 1)) * 2;
+                const zHover = (i - (layerCount - 1)) * 3.5;
+                const isTop = i === (layerCount - 1);
+                const color = isTop ? '#ffffff' : `hsl(210, 8%, ${90 - ((layerCount - 1)-i)*3}%)`;
+                const strokeWidth = isTop ? 2.5 : 4;
+                html += `
+                    <div class="absolute inset-0 transition-all duration-700 z-layer" style="--z-depth: ${zDepth}px; --z-hover: ${zHover}px;">
+                        <i data-lucide="${iconName}" class="w-full h-full" style="color: ${color};" stroke-width="${strokeWidth}"></i>
+                    </div>`;
+            }
+            html += `</div></div>`;
+            container.innerHTML = html;
+        });
+        lucide.createIcons();
+
+        // 5. Optimized 3D Hero section tracking
+        const heroScene = document.getElementById('hero-scene');
+        const heroComponents = [
+            { el: document.getElementById('hero-glass-glare'), type: 'bg' },
+            { el: document.getElementById('hero-card-small'), type: 'transform', calc: (x,y) => `translateZ(100px) translateX(-70px) translateY(100px) rotateZ(-10deg) rotateY(${x * 15}deg)` },
+            { el: document.getElementById('hero-sphere'), type: 'transform', calc: (x,y) => `translateZ(160px) translateX(90px) translateY(-120px) rotateX(${y * -20}deg)` },
+            { el: document.getElementById('hero-dark-obj'), type: 'transform', calc: (x,y) => `translateZ(250px) translateX(120px) translateY(40px) rotateZ(${x * 40}deg) rotateX(${y * 40}deg)` }
+        ];
+
+        let heroFrameId;
+        window.addEventListener('mousemove', (e) => {
+            if(window.innerWidth < 768 || !heroScene) return; // Ignore on mobile
+            cancelAnimationFrame(heroFrameId);
+            heroFrameId = requestAnimationFrame(() => {
+                const normX = (e.clientX / window.innerWidth - 0.5) * 2;
+                const normY = (e.clientY / window.innerHeight - 0.5) * 2;
+                
+                heroScene.style.transform = `rotateY(${normX * 25}deg) rotateX(${normY * -25}deg)`;
+                heroComponents.forEach(comp => {
+                    if(!comp.el) return;
+                    if(comp.type === 'bg') comp.el.style.background = `radial-gradient(circle at ${50 + normX * 50}% ${50 + normY * 50}%, rgba(255,255,255,0.6) 0%, transparent 60%)`;
+                    if(comp.type === 'transform') comp.el.style.transform = comp.calc(normX, normY);
+                });
+            });
+        }, { passive: true });
+
+        // 6. Intersection Observer for Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-12');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.reveal-section').forEach(el => observer.observe(el));
+
+        // 7. Navbar Scroll State
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-4', 'glass-panel', 'shadow-[0_10px_30px_rgba(0,0,0,0.03)]');
+                navbar.classList.remove('py-6', 'bg-transparent');
+            } else {
+                navbar.classList.add('py-6', 'bg-transparent');
+                navbar.classList.remove('py-4', 'glass-panel', 'shadow-[0_10px_30px_rgba(0,0,0,0.03)]');
+            }
+        }, { passive: true });
+
+        // 8. Magnetic Buttons Logic
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
+                const y = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
+                btn.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            btn.addEventListener('mouseleave', () => btn.style.transform = `translate(0px, 0px)`);
+        });
+
+        // 9. Smooth Scroll Links
+        document.querySelectorAll('[data-scroll-to]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-scroll-to');
+                if (targetId === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
+                else document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // NEW: Mobile Full-Screen Menu Logic
+        const mobileMenu = document.getElementById('mobile-menu');
+        const openMenuBtn = document.getElementById('open-mobile-menu');
+        const closeMenuBtn = document.getElementById('close-mobile-menu');
+        const menuLinks = document.querySelectorAll('[data-menu-link]');
+
+        const toggleMenu = (show) => {
+            if (show) {
+                mobileMenu.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                document.body.style.overflow = 'hidden'; // Lock scroll
+            } else {
+                mobileMenu.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                document.body.style.overflow = ''; // Restore scroll
+            }
+        };
+
+        if(openMenuBtn && closeMenuBtn) {
+            openMenuBtn.addEventListener('click', () => toggleMenu(true));
+            closeMenuBtn.addEventListener('click', () => toggleMenu(false));
+        }
+
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleMenu(false); // Close menu first
+                const targetId = link.getAttribute('data-menu-link');
+                setTimeout(() => {
+                    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+                }, 400); // Wait for transition to mostly finish before scrolling
+            });
+        });
+
+        // 10. Mobile Carousel and Parallax
+        const travelCarousel = document.querySelector('#travel .overflow-x-auto');
+        const updateTravelCards = () => {
+            if (window.innerWidth >= 768) return;
+            const center = travelCarousel.getBoundingClientRect().left + travelCarousel.getBoundingClientRect().width / 2;
+            let closest = null, minDistance = Infinity;
+            document.querySelectorAll('.travel-card').forEach(card => {
+                const dist = Math.abs(center - (card.getBoundingClientRect().left + card.getBoundingClientRect().width / 2));
+                if (dist < minDistance) { minDistance = dist; closest = card; }
+            });
+            document.querySelectorAll('.travel-card').forEach(card => card.classList.toggle('is-active', card === closest));
+        };
+        if (travelCarousel) {
+            travelCarousel.addEventListener('scroll', updateTravelCards, { passive: true });
+            setTimeout(updateTravelCards, 100);
+        }
+
+        // Mobile Optimization: Cache DOM, Ticking, and Intersection Observer
+        let mobileTicking = false;
+        let isSkillsVisible = false;
+        
+        const cachedShapes = document.querySelectorAll('.mobile-bg-shape');
+        const cachedIcons = document.querySelectorAll('.mobile-3d-icon');
+        const skillsSection = document.getElementById('skills');
+
+        // Pause scroll animation when #skills is not visible
+        if (skillsSection) {
+            const skillsObserver = new IntersectionObserver((entries) => {
+                isSkillsVisible = entries[0].isIntersecting;
+            }, { threshold: 0 }); // Trigger as soon as any part enters viewport
+            skillsObserver.observe(skillsSection);
+        }
+
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth >= 768) return;
+
+            if (!mobileTicking) {
+                requestAnimationFrame(() => {
+                    const scrolled = window.scrollY;
+                    
+                    // Always animate background shapes (Hero section)
+                    cachedShapes.forEach((shape, i) => {
+                        shape.style.transform = `translateY(${scrolled * (i + 1) * 0.08 * (i % 2 === 0 ? 1 : -1)}px)`;
+                    });
+
+                    // Only animate 3D icons if the section is currently visible
+                    if (isSkillsVisible) {
+                        cachedIcons.forEach((icon, i) => {
+                            const baseZ = parseFloat(icon.dataset.baseZ || 0);
+                            icon.style.transform = `rotateX(60deg) rotateZ(${baseZ + (scrolled * 0.15 * (i % 2 === 0 ? 1 : -1))}deg) scale(1.1)`;
+                        });
+                    }
+
+                    mobileTicking = false;
+                });
+
+                mobileTicking = true;
+            }
+        }, { passive: true });
+
+        // 11. Thought Process Toggle Logic
+        document.querySelectorAll('.toggle-process-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                const textSpan = btn.querySelector('.btn-text');
+                
+                if (btn.classList.contains('is-open')) {
+                    // Close state
+                    btn.classList.remove('is-open');
+                    target.style.maxHeight = '0px';
+                    target.style.opacity = '0';
+                    target.style.marginTop = '0px';
+                    textSpan.textContent = 'Read Thought Process';
+                } else {
+                    // Open state
+                    btn.classList.add('is-open');
+                    target.style.marginTop = '1.5rem';
+                    // Calculate scroll height + add padding offset for smooth transition
+                    target.style.maxHeight = target.scrollHeight + 50 + 'px';
+                    target.style.opacity = '1';
+                    textSpan.textContent = 'Close Thought Process';
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
