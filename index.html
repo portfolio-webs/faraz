@@ -99,6 +99,13 @@
                 font-size: 1.05rem !important;
                 font-weight: 600 !important;
             }
+            
+            #skills h3 {
+                font-size: 0.7rem !important;
+                letter-spacing: 0.18em !important;
+                line-height: 1.3 !important;
+            }
+            
             section p {
                 font-size: 0.9rem !important;
                 line-height: 1.65 !important;
@@ -784,7 +791,7 @@
         iconContainers.forEach(container => {
             const iconName = container.getAttribute('data-icon');
             const rotateZ = container.getAttribute('data-rotate-z');
-            const layerCount = window.innerWidth < 768 ? 6 : 12; // Mobile Optimization 1: Reduce layers
+            const layerCount = window.innerWidth < 768 ? 6 : 12;
             
             let html = `
             <div class="flex-1 flex items-center justify-center w-full" style="perspective: 1000px;">
@@ -844,7 +851,7 @@
                     if (window.innerWidth < 768) entry.target.classList.add('scale-100');
                     
                     entry.target.classList.remove('opacity-0', 'translate-y-12');
-                    if (window.innerWidth < 768) entry.target.classList.remove('scale-98', 'translate-y-8');
+                    if (window.innerWidth < 768) entry.target.classList.remove('scale-95');
                     
                     observer.unobserve(entry.target);
                 }
@@ -853,8 +860,8 @@
         
         document.querySelectorAll('.reveal-section').forEach(el => {
             if (window.innerWidth < 768) {
-                el.classList.remove('translate-y-12'); // Remove desktop default
-                el.classList.add('scale-98', 'translate-y-8'); // Subtler mobile default
+                el.classList.add('scale-95');
+                el.classList.remove('scale-98', 'translate-y-8'); 
             }
             observer.observe(el);
         });
